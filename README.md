@@ -1,39 +1,23 @@
-# .
 
-This template should help get you started developing with Vue 3 in Vite.
+# 🐐 La Chèvre
 
-## Recommended IDE Setup
+A small web application for managing a Chèvre tournament.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Type Support for `.vue` Imports in TS
+## Launch the app
+First, install the dependencies.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+  npm i
 ```
 
-### Compile and Hot-Reload for Development
+For now, you can launch the project in development mode.
 
-```sh
-npm run dev
+```bash
+  npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The game is stored in your browser's local storage, so you can reload the page and keep your tournament data.
 
-```sh
-npm run build
-```
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+BE THE 🐐.

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="tournament" class="min-h-screen pl-8 pr-8 pt-18 pb-24 flex flex-col gap-6">
+    <div class="min-h-screen pl-8 pr-8 pt-18 pb-24 flex flex-col gap-6">
         <div class="fixed top-0 left-0 w-full pl-8 pr-8 pt-2 z-50 pointer-events-none">
             <div class="w-50 ml-auto flex justify-between pl-4 pt-1 pr-1 pb-1 flex items-center gap-2 bg-secondary rounded-lg border pointer-events-auto">
                 <EditableText v-model="tournament.name" class="text-l font-bold" />
@@ -11,8 +11,22 @@
                     </DropdownMenuTrigger>
                     <DropdownMenuContent :align="'end'" :alignOffset="-5" class="mt-2">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem @click="clearAndRestart">
-                                <span>Supprimer le tournoi</span>
+                            <DropdownMenuItem @select="$event.preventDefault()">
+                                <AlertDialog>
+                                    <AlertDialogTrigger>Supprimer le tournoi</AlertDialogTrigger>
+                                    <AlertDialogContent disableOutsidePointerEvents>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Supprimer le tournoi</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                T'es sûr t'es pas bourré là ?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction @click="store.clearTournament()">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
@@ -25,11 +39,11 @@
                 <PlayersList
                     :players="tournament.players"
                     isEditable
-                    @add-player="tournament.addPlayer($event)"
-                    @remove-player="tournament.removePlayer($event)"
+                    @add-player="store.addPlayer($event)"
+                    @remove-player="store.removePlayer($event)"
                 />
 
-                <Button :disabled="!tournament.hasEnoughPlayers" class="w-full" @click="tournament.start()">
+                <Button :disabled="!tournament.hasEnoughPlayers" class="w-full" @click="store.start()">
                     {{ tournament.hasEnoughPlayers ? 'Lesgoooo' : `frère on va pas jouer à ${tournament.players.length}` }}
                 </Button>
             </div>
@@ -37,7 +51,7 @@
                 <TabsList class="mb-2">
                     <TabsTrigger v-for="_, i in tournament.rounds" :value="i" :key="i">
                         Tour {{ i + 1 }}
-                        <Button v-if="tournament.currentRoundIndex === i && i === tournament.rounds.length - 1" size="icon" class="p-0 w-5 h-5" variant="ghost" @click="tournament.deleteRound()">
+                        <Button v-if="tournament.currentRoundIndex === i && i === tournament.rounds.length - 1" size="icon" class="p-0 w-5 h-5" variant="ghost" @click="store.deleteRound()">
                             <span class="text-xs w-[9px]">❌</span>
                         </Button>
                     </TabsTrigger>
@@ -46,7 +60,7 @@
                     <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(370px,1fr))]">
                         <Round :round="round" />
                     </div>
-                    <Button v-if="tournament.hasRounds && tournament.hasPools && tournament.isOnLastRound" @click="tournament.toNextRound()" class="w-60 fixed left-0 bottom-4 right-0 m-auto">Passer au tour suivant</Button>
+                    <Button v-if="tournament.hasRounds && tournament.hasPools && tournament.isOnLastRound" @click="store.toNextRound()" class="w-60 fixed left-0 bottom-4 right-0 m-auto">Passer au tour suivant</Button>
                 </TabsContent>
             </Tabs>
         </div>
@@ -54,33 +68,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
-import { Tournament } from '@/entities/Tournament'
+import { onBeforeMount } from 'vue'
+import { useTournamentStore } from '@/stores/tournament'
+import { storeToRefs } from 'pinia'
 import PlayersList from '@/components/PlayersList.vue'
 import Round from '@/components/Round.vue'
-import { useTournamentStorage } from '@/composables/useTournamentStorage'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import EditableText from '@/components/ui/EditableText.vue'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menu } from 'lucide-vue-next'
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogAction } from '@/components/ui/alert-dialog'
 
-const tournament = ref<Tournament | undefined>(undefined)
-const { loadTournament, clearTournament, startAutoSave } = useTournamentStorage(tournament)
+const store = useTournamentStore()
+const { tournament } = storeToRefs(store)
 
 onBeforeMount(() => {
-    const loadedTournament = loadTournament()
-    tournament.value = loadedTournament ?? new Tournament()
-
-    console.log(tournament.value)
-    
-    startAutoSave()
+    store.loadTournament()
 })
+
+store.startAutoSave()
 
 const clearAndRestart = () => {
     if (confirm('Êtes-vous sûr de vouloir effacer le tournoi actuel et en créer un nouveau ?')) {
-        clearTournament()
-        tournament.value = new Tournament()
+        store.clearTournament()
     }
 }
 </script>

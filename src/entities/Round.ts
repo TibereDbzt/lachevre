@@ -11,7 +11,7 @@ export class Round {
         this.createPlayerGroups()
     }
 
-    private createPlayerGroups(): void {
+    public createPlayerGroups(): void {
         if (this.players.length === 0) return
         
         const groupsMap: { [history: WinLossHistoryString]: Player[] } = {}

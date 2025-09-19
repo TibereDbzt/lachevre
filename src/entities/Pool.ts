@@ -11,7 +11,7 @@ export class Pool {
         this.createGames(3)
     }
 
-    private createGames(nbOfGames: number) {
+    public createGames(nbOfGames: number) {
         this.games = Array.from({ length: nbOfGames }, () => {
             const game: IGame = {}
             this.players.forEach(player => {

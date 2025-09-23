@@ -55,6 +55,8 @@ export class Pool {
         
         winners.forEach(player => player.addVictory())
         losers.forEach(player => player.addDefeat())
+
+        this.ranking.forEach((player, idx) => player.addPosition(idx + 1))
     }
 
     public toJSON(): Record<any, any> {

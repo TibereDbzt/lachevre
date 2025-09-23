@@ -32,7 +32,6 @@ export const useTournamentStore = defineStore('tournament', () => {
         tournament.value.deleteRound()
   }
 
-  // Gestion de la persistance
   const saveTournament = () => {
     try {
       const tournamentJSON = tournament.value.toJSON()

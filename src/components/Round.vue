@@ -1,6 +1,6 @@
 <template>
     <Card v-for="playerGroup, i in round.playerGroups" :key="i" class="relative w-full">
-        <CardHeader v-if="playerGroup.winLossHistory" class="flex items-center justify-between">
+        <CardHeader class="flex items-center justify-between">
             <CardTitle>
                 <EditableText 
                     :model-value="playerGroup.displayTitle"

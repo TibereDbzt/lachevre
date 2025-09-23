@@ -4,6 +4,10 @@ import { shuffle } from "@/utils/array"
 import type { WinLossHistoryString } from "@/entities/Player"
 
 export class PlayerGroup {
+    // À la création des poules, les joueurs ayant fini dans ces positions
+    // seront séparés les uns des autres autant que possible
+    public static readonly PRIORITY_POSITIONS: number[] = [1, 2]
+    
     public pools: Pool[] = []
     public nbOfSelectedPlayers: number = 3
     public customTitle?: string
@@ -15,11 +19,36 @@ export class PlayerGroup {
 
     public createPools(nbOfPools: number): void {
         const pools: Pool[] = Array.from({ length: nbOfPools }, () => new Pool([]))
-        const shuffledPlayers = shuffle([...this.players])
+        const playersNotPrioritized: Player[] = this.players.filter(player => !PlayerGroup.PRIORITY_POSITIONS.includes(player.lastPosition))
+        const prioritizedPlayersPerPosition: { [position: number]: Player[] } = {}
+        
+        this.players.forEach(player => {
+            const position = player.lastPosition
+            if (PlayerGroup.PRIORITY_POSITIONS.includes(position)) {
+                if (!prioritizedPlayersPerPosition[position]) prioritizedPlayersPerPosition[position] = []
+                prioritizedPlayersPerPosition[position].push(player)
+            }
+        })
 
-        shuffledPlayers.forEach((player, index) => {
-            const poolIndex = index % nbOfPools
-            pools[poolIndex].addPlayer(player)
+        // Priorité aux positions importantes (1, 2, 3) pour maximiser leur séparation
+        PlayerGroup.PRIORITY_POSITIONS.forEach(position => {
+            if (prioritizedPlayersPerPosition[position]) {
+                const players = shuffle([...prioritizedPlayersPerPosition[position]])
+
+                players.forEach((player, index) => {
+                    const poolIndex = index % pools.length
+                    pools[poolIndex].addPlayer(player)
+                })
+            }
+        })
+
+        // Répartir les autres joueurs aléatoirement en faisant en sorte que les poules aient le même nombre de joueurs
+        shuffle([...playersNotPrioritized]).forEach((player) => {
+            // Trouver le pool avec le moins de joueurs
+            const poolWithLeastPlayers = pools.reduce((poolWithLeastPlayers, pool) => 
+                pool.players.length < poolWithLeastPlayers.players.length ? pool : poolWithLeastPlayers
+            )
+            poolWithLeastPlayers.addPlayer(player)
         })
 
         this.pools = pools

@@ -1,5 +1,5 @@
 <template>
-    <Card v-for="playerGroup, i in round.playerGroups" :key="i" class="relative w-full">
+    <Card v-for="playerGroup, i in sortedPlayerGroups" :key="i" class="relative w-full">
         <CardHeader class="flex items-center justify-between">
             <CardTitle>
                 <EditableText 
@@ -43,8 +43,17 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MoreHorizontal } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { computed } from 'vue';
 
-defineProps<{
-    round: Round
+const props = defineProps<{
+    round: Round    
 }>()
+
+const sortedPlayerGroups = computed(() => {
+    return [...props.round.playerGroups].sort((groupA, groupB) => {
+        const weightA = groupA.winLossHistory.replace(/W/g, '1').replace(/L/g, '0')
+        const weightB = groupB.winLossHistory.replace(/W/g, '1').replace(/L/g, '0')
+        return parseInt(weightA) - parseInt(weightB)
+    })
+})
 </script>

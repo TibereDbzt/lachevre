@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, watch } from 'vue'
 import { useTournamentStore } from '@/stores/tournament'
 import { storeToRefs } from 'pinia'
 import PlayersList from '@/components/PlayersList.vue'
@@ -88,10 +88,4 @@ onBeforeMount(() => {
 })
 
 store.startAutoSave()
-
-const clearAndRestart = () => {
-    if (confirm('Êtes-vous sûr de vouloir effacer le tournoi actuel et en créer un nouveau ?')) {
-        store.clearTournament()
-    }
-}
 </script>

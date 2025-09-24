@@ -7,7 +7,7 @@ const STORAGE_KEY = 'lachevre-tournament'
 export const useTournamentStore = defineStore('tournament', () => {
   const tournamentOrNull = ref<Tournament | null>(null)
 
-  const tournament = computed(() => {
+  const tournament = computed<Tournament>(() => {
     if (!tournamentOrNull.value) throw new Error('Tournament not initialized.')
     return tournamentOrNull.value
   })
@@ -80,6 +80,16 @@ export const useTournamentStore = defineStore('tournament', () => {
     )
   }
 
+  const watchProperty = (property: keyof Tournament, callback: (newValue: unknown) => void) => {
+    watch(
+      () => tournamentOrNull,
+      (tournament) => {
+        if (tournament.value !== null) callback(tournament.value[property])
+      },
+      { deep: true }
+    )
+  }
+
   return {
     // État
     tournament,
@@ -95,6 +105,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     saveTournament,
     loadTournament,
     clearTournament,
-    startAutoSave
+    startAutoSave,
+    watchProperty
   }
 })

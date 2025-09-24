@@ -43,7 +43,7 @@ export class Tournament {
     public deleteRound(): void {
         this.players.forEach(player => player.removeLastRoundResult())
         this.rounds.pop()
-        this.currentRoundIndex--
+        if (this.rounds.length > 0) this.currentRoundIndex--
     }
 
     public get isOnLastRound(): boolean {

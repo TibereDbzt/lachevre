@@ -8,20 +8,21 @@ export class Round {
     
     constructor(players: Player[]) {
         this.players = players
+        this.players.forEach(player => player.pointsHistory.push(0))
         this.createPlayerGroups()
     }
 
     public createPlayerGroups(): void {
         if (this.players.length === 0) return
-        
+
         const groupsMap: { [history: WinLossHistoryString]: Player[] } = {}
-        
+
         this.players.forEach(player => {
             const history = player.winLossHistory
             if (!groupsMap[history]) groupsMap[history] = []
             groupsMap[history].push(player)
         })
-        
+
         this.playerGroups = Object.entries(groupsMap).map(
             ([history, players]) => new PlayerGroup(history, players)
         )
@@ -30,6 +31,12 @@ export class Round {
     public finish(): void {
         this.playerGroups.forEach(group => {
             group.finishRound()
+        })
+    }
+
+    public endTournament(): void {
+        this.playerGroups.forEach(group => {
+            group.endTournament()
         })
     }
 

@@ -11,6 +11,25 @@
                     </DropdownMenuTrigger>
                     <DropdownMenuContent :align="'end'" :alignOffset="-5" class="mt-2">
                         <DropdownMenuGroup>
+                            <DropdownMenuItem v-if="tournament.hasRounds" @select="$event.preventDefault()">
+                                <AlertDialog>
+                                    <AlertDialogTrigger>
+                                        {{ tournament.isFinished ? 'Reprendre le tournoi' : 'Terminer le tournoi' }}
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent disableOutsidePointerEvents>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{{ tournament.isFinished ? 'Reprendre le tournoi' : 'Terminer le tournoi' }}</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                T'es sûr t'es pas bourré là ?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction @click="tournament.isFinished ? tournament.revertFinish() : tournament.finish()">{{ tournament.isFinished ? 'Reprendre' : 'Terminer' }}</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </DropdownMenuItem>
                             <DropdownMenuItem @select="$event.preventDefault()">
                                 <AlertDialog>
                                     <AlertDialogTrigger>Supprimer le tournoi</AlertDialogTrigger>
@@ -33,9 +52,9 @@
                 </DropdownMenu>
             </div>
         </div>
-
         <div class="grow flex flex-col items-center">
-            <div v-if="!tournament.hasRounds" class="flex flex-col items-center gap-4">
+            <Results v-if="tournament.isFinished" :tournament="tournament" />
+            <div v-else-if="!tournament.hasRounds" class="flex flex-col items-center gap-4">
                 <PlayersList
                     :players="tournament.players"
                     isEditable
@@ -58,7 +77,7 @@
                 </TabsList>
                 <TabsContent v-for="round, i in tournament.rounds" :value="i">
                     <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(370px,1fr))]">
-                        <Round :round="round" />
+                        <Round :round="round" :isEditable="tournament.isOnLastRound" />
                     </div>
                     <Button v-if="tournament.hasRounds && tournament.hasPools && tournament.isOnLastRound" @click="store.toNextRound()" class="w-60 fixed left-0 bottom-4 right-0 m-auto">Passer au tour suivant</Button>
                 </TabsContent>
@@ -79,6 +98,7 @@ import EditableText from '@/components/ui/EditableText.vue'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menu } from 'lucide-vue-next'
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogAction } from '@/components/ui/alert-dialog'
+import Results from '@/components/Results.vue'
 
 const store = useTournamentStore()
 const { tournament } = storeToRefs(store)

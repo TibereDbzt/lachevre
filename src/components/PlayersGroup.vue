@@ -15,7 +15,7 @@
         <Button @click="playerGroup.createPools(nbOfPools)">Créer {{ nbOfPools }} {{ pl('poule', nbOfPools) }}</button>
     </div>
     <div v-else class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
-        <Pool v-for="pool, i in playerGroup.pools" :pool="pool" :nbOfSelectedPlayers="playerGroup.nbOfSelectedPlayers" :key="i"/>
+        <Pool v-for="pool, i in playerGroup.pools" :pool="pool" :nbOfSelectedPlayers="playerGroup.nbOfSelectedPlayers" :isEditable="isEditable" :key="i"/>
     </div>
 </template>
 
@@ -30,6 +30,7 @@ import { pl } from '@/lib/utils';
 
 defineProps<{
     playerGroup: PlayerGroup
+    isEditable: boolean
 }>()
 
 const nbOfPools = ref<number>(2)

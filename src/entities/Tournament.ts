@@ -6,12 +6,38 @@ export class Tournament {
     public players: Player[] = []
     public rounds: Round[] = []
     public currentRoundIndex: number = 0
+    public isFinished: boolean = false
     
     constructor() {}
 
     public get currentRound(): Round {
         return this.rounds[this.currentRoundIndex]
     }
+
+    /**
+     * Returns the ranking of players based on their win/loss history and final position in the last round.
+     * 
+     */
+    public get rankingByStage(): Player[] {
+        return [...this.players].sort((a, b) => {
+            const weightA = a.winLossHistory.replace(/W/g, '1').replace(/L/g, '0')
+            const weightB = b.winLossHistory.replace(/W/g, '1').replace(/L/g, '0')
+            if (weightB !== weightA) {
+                return parseInt(weightB) - parseInt(weightA)
+            }
+            if (a.lastPosition !== b.lastPosition) {
+                return a.lastPosition - b.lastPosition
+            }
+            return a.totalPoints - b.totalPoints
+        });
+    }
+
+    public get rankingByTotalPoints(): Player[] {
+        return [...this.players].sort((a, b) => {
+            return a.totalPoints - b.totalPoints
+        })
+    }
+        
 
     public addPlayer(playerName: Player['name']): void {
         const isPlayerNameAvailable = this.players.findIndex(player => player.name === playerName) === -1
@@ -26,6 +52,16 @@ export class Tournament {
 
     public start(): void {
         this.rounds.push(new Round(this.players))
+    }
+
+    public finish(): void {
+        this.currentRound.endTournament()
+        this.isFinished = true
+    }
+
+    public revertFinish(): void {
+        this.players.forEach(player => player.removeLastRoundResult(false))
+        this.isFinished = false
     }
 
     public toNextRound(): void {
@@ -67,7 +103,8 @@ export class Tournament {
             name: this.name,
             players: this.players.map(player => player.toJSON()),
             rounds: this.rounds.map(round => round.toJSON()),
-            currentRoundIndex: this.currentRoundIndex
+            currentRoundIndex: this.currentRoundIndex,
+            isFinished: this.isFinished
         }
     }
 
@@ -80,6 +117,8 @@ export class Tournament {
         tournament.rounds = data.rounds.map((roundData: any) => Round.fromJSON(roundData, tournament.players))
         
         tournament.currentRoundIndex = data.currentRoundIndex
+        tournament.isFinished = data.isFinished
+        
         return tournament
     }
 }

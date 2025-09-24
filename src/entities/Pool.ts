@@ -1,4 +1,5 @@
 import { Player } from "@/entities/Player"
+import { shuffle } from "@/utils/array"
 
 export interface IGame {
     [Player.name]: number | null
@@ -37,8 +38,9 @@ export class Pool {
         return this.games.reduce((acc, game) => acc + (game[playerName] || 0), 0)
     }
 
-    public updateScore(playerName: Player['name'], gameIdx: number, score: number): void {
-        this.games[gameIdx][playerName] = score
+    public setGameScore(player: Player, gameIdx: number, score: number): void {
+        this.games[gameIdx][player.name] = score
+        player.setCurrentRoundPoints(this.getTotalOfPlayer(player.name))
     }
 
     public getWinners(nbOfSelectedPlayers: number): Player[] {
@@ -57,6 +59,23 @@ export class Pool {
         losers.forEach(player => player.addDefeat())
 
         this.ranking.forEach((player, idx) => player.addPosition(idx + 1))
+    }
+
+    public endTournament(): void {
+        this.ranking.forEach((player, idx) => player.addPosition(idx + 1))
+    }
+
+    public fillScoresRandomly(): void {
+        // Distribute 12 points per game randomly between players
+        this.games.forEach((game, gameIndex) => {
+            let totalPoints = 12
+            const players = shuffle([...this.players])
+            players.forEach(player => {
+                const score = Math.floor(Math.random() * (totalPoints + 1))
+                this.setGameScore(player, gameIndex, score)
+                totalPoints -= score
+            })
+        })
     }
 
     public toJSON(): Record<any, any> {

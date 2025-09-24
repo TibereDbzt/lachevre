@@ -29,14 +29,16 @@
                     <TableCell>
                        <span>{{ player.name }}</span>
                     </TableCell>
-                    <TableCell v-for="game, index in pool.games" :key="`${player.name}-${index}`">
-                        <input 
+                    <TableCell v-for="game, gameIndex in pool.games" :key="`${player.name}-${gameIndex}`">
+                        <input
+                            :disabled="!isEditable"
                             type="number"
                             min="0"
-                            v-model="game[player.name]"
-                            :ref="(el) => createInputRef(el as HTMLInputElement, player.name, index)"
+                            :value="game[player.name]"
+                            @input="pool.setGameScore(player, gameIndex, parseInt(($event.target as HTMLInputElement).value))"
+                            :ref="(el) => createInputRef(el as HTMLInputElement, player.name, gameIndex)"
                             class="pool_inputNumber flex h-6 w-10 rounded-md border border-input bg-transparent py-1 text-sm text-center shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            @focus="setFocusedInput(player.name, index)"
+                            @focus="setFocusedInput(player.name, gameIndex)"
                         >
                     </TableCell>
                     <TableCell class="text-right">
@@ -73,7 +75,11 @@ import PlayersList from '@/components/PlayersList.vue'
 import { shuffle } from '@/utils/array';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
-const props = defineProps<{ pool: Pool, nbOfSelectedPlayers: number }>()
+const props = defineProps<{
+    pool: Pool,
+    nbOfSelectedPlayers: number,
+    isEditable: boolean
+}>()
 
 const focusedInputKey = ref<{playerName: string, gameIndex: number} | null>(null)
 const inputRefs = ref<Map<string, HTMLInputElement>>(new Map())

@@ -61,6 +61,12 @@ export class PlayerGroup {
         })
     }
 
+    public endTournament(): void {
+        this.pools.forEach(pool => {
+            pool.endTournament()
+        })
+    }
+
     public get maxOfSelectedPlayers(): number {
         if (this.pools.length === 0) throw new Error('Pools have not been created yet.')
         const smallestPool = this.pools.reduce((smallestPool, pool) => pool.players.length < smallestPool.players.length ? pool : smallestPool)
@@ -78,6 +84,13 @@ export class PlayerGroup {
     public setCustomTitle(title: string): void {
         this.customTitle = title.trim() || undefined
     }
+
+    public fillScoresRandomly(): void {
+        this.pools.forEach(pool => {
+            pool.fillScoresRandomly()
+        })
+    }
+        
 
     public toJSON(): Record<any, any> {
         return {

@@ -8,6 +8,7 @@ export type WinLossHistoryString = string
 export class Player {
     public winLossHistory: WinLossHistoryString = ''
     public positionHistory: number[] = []
+    public pointsHistory: number[] = []
     
     constructor(public name: string) {}
 
@@ -15,7 +16,12 @@ export class Player {
         return this.positionHistory[this.positionHistory.length - 1]
     }
 
+    public get totalPoints(): number {
+        return this.pointsHistory.reduce((a, b) => a + b, 0)
+    }
+
     public addVictory(): void {
+        console.log(this.name, 'add victory')
         this.winLossHistory += 'W'
     }
 
@@ -27,16 +33,22 @@ export class Player {
         this.positionHistory.push(position)
     }
 
-    public removeLastRoundResult(): void {
+    public setCurrentRoundPoints(points: number): void {
+        this.pointsHistory[this.pointsHistory.length - 1] = points
+    }
+
+    public removeLastRoundResult(shouldRemovePoints: boolean = true): void {
         this.winLossHistory = this.winLossHistory.slice(0, -1)
         this.positionHistory.pop()
+        if (shouldRemovePoints) this.pointsHistory.pop()
     }
 
     public toJSON(): Record<any, any> {
         return {
             name: this.name,
             winLossHistory: this.winLossHistory,
-            positionHistory: this.positionHistory
+            positionHistory: this.positionHistory,
+            pointsHistory: this.pointsHistory
         }
     }
 
@@ -44,6 +56,7 @@ export class Player {
         const player = new Player(data.name)
         player.winLossHistory = data.winLossHistory
         player.positionHistory = data.positionHistory
+        player.pointsHistory = data.pointsHistory
         return player
     }
 }

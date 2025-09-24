@@ -15,21 +15,26 @@
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent :align="'end'" class="w-81">
-                    <div class="flex items-center gap-2 text-sm">
-                        Nombre de joueurs sélectionnés
-                        <NumberField v-model="playerGroup.nbOfSelectedPlayers" :min="1" :max="playerGroup.maxOfSelectedPlayers" class="w-16 inline-block">
-                            <NumberFieldContent>
-                                <NumberFieldDecrement />
-                                <NumberFieldInput />
-                                <NumberFieldIncrement />
-                            </NumberFieldContent>
-                        </NumberField>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center gap-2 text-sm">
+                            Nombre de joueurs sélectionnés
+                            <NumberField v-model="playerGroup.nbOfSelectedPlayers" :min="1" :max="playerGroup.maxOfSelectedPlayers" class="w-16 inline-block">
+                                <NumberFieldContent>
+                                    <NumberFieldDecrement />
+                                    <NumberFieldInput />
+                                    <NumberFieldIncrement />
+                                </NumberFieldContent>
+                            </NumberField>
+                        </div>
+                        <div>
+                            <Button variant="outline" @click="playerGroup.fillScoresRandomly()" class="w-full">Remplir les scores aléatoirement</Button>
+                        </div>
                     </div>
                 </PopoverContent>
             </Popover>
         </CardHeader>
         <CardContent class="h-full">
-            <PlayerGroup :playerGroup="playerGroup" />
+            <PlayerGroup :playerGroup="playerGroup" :isEditable="isEditable" />
         </CardContent>
     </Card>
 </template>
@@ -46,7 +51,8 @@ import { Button } from '@/components/ui/button';
 import { computed } from 'vue';
 
 const props = defineProps<{
-    round: Round    
+    round: Round
+    isEditable: boolean
 }>()
 
 const sortedPlayerGroups = computed(() => {
